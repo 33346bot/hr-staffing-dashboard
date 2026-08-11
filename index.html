@@ -935,6 +935,9 @@ html&gt;body{padding:0}&lt;/style&gt;
 #hr-staffing-prototype .content { padding:18px 22px 22px; }
 #hr-staffing-prototype .toolbar { display:flex; justify-content:space-between; gap:12px; align-items:flex-end; flex-wrap:wrap; margin-bottom:14px; }
 #hr-staffing-prototype .filters { display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; }
+#hr-staffing-prototype .toolbar-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+#hr-staffing-prototype .action.back-primary { background:var(--hr-blue); color:#fff; border-color:var(--hr-blue); box-shadow:0 6px 16px color-mix(in srgb,var(--hr-blue) 24%,transparent); }
+#hr-staffing-prototype .action.back-secondary { border-color:color-mix(in srgb,var(--hr-blue) 45%,var(--hr-line)); color:var(--hr-blue); background:color-mix(in srgb,var(--hr-blue) 8%,var(--hr-surface)); }
 #hr-staffing-prototype label { display:grid; gap:5px; font-size:12px; color:var(--hr-muted); }
 #hr-staffing-prototype select { min-width:136px; border:1px solid var(--hr-line); background:var(--hr-surface); color:var(--hr-text); border-radius:9px; padding:7px 28px 7px 9px; }
 #hr-staffing-prototype .kpis { display:grid; grid-template-columns:repeat(6,minmax(108px,1fr)); gap:10px; margin-bottom:16px; }
@@ -1011,7 +1014,11 @@ html&gt;body{padding:0}&lt;/style&gt;
         &lt;label&gt;岗位&lt;select id=&quot;position-filter&quot;&gt;&lt;/select&gt;&lt;/label&gt;
         &lt;label&gt;状态&lt;select id=&quot;status-filter&quot;&gt;&lt;option value=&quot;all&quot;&gt;全部&lt;/option&gt;&lt;option value=&quot;gap&quot;&gt;只看空编&lt;/option&gt;&lt;option value=&quot;over&quot;&gt;只看超编&lt;/option&gt;&lt;option value=&quot;temp&quot;&gt;有临时编制&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;
       &lt;/div&gt;
-      &lt;button type=&quot;button&quot; class=&quot;action&quot; id=&quot;reset&quot;&gt;重置&lt;/button&gt;
+      &lt;div class=&quot;toolbar-actions&quot;&gt;
+        &lt;button type=&quot;button&quot; class=&quot;action back-secondary hidden&quot; id=&quot;up&quot;&gt;返回上一层&lt;/button&gt;
+        &lt;button type=&quot;button&quot; class=&quot;action back-primary hidden&quot; id=&quot;back-home&quot;&gt;返回端口总览&lt;/button&gt;
+        &lt;button type=&quot;button&quot; class=&quot;action&quot; id=&quot;reset&quot;&gt;重置&lt;/button&gt;
+      &lt;/div&gt;
     &lt;/div&gt;
     &lt;div class=&quot;kpis&quot; id=&quot;home-kpis&quot;&gt;&lt;/div&gt;
     &lt;div id=&quot;home-panel&quot; class=&quot;home-layout&quot;&gt;
@@ -1032,10 +1039,6 @@ html&gt;body{padding:0}&lt;/style&gt;
     &lt;section id=&quot;detail-panel&quot; class=&quot;hidden&quot;&gt;
       &lt;div class=&quot;detail-head&quot;&gt;
         &lt;div&gt;&lt;h2 id=&quot;detail-title&quot;&gt;&lt;/h2&gt;&lt;p id=&quot;detail-subtitle&quot; class=&quot;muted&quot;&gt;&lt;/p&gt;&lt;/div&gt;
-        &lt;div style=&quot;display:flex;gap:8px;flex-wrap:wrap&quot;&gt;
-          &lt;button type=&quot;button&quot; class=&quot;action hidden&quot; id=&quot;up&quot;&gt;返回上一层&lt;/button&gt;
-          &lt;button type=&quot;button&quot; class=&quot;action&quot; id=&quot;back-home&quot;&gt;返回端口总览&lt;/button&gt;
-        &lt;/div&gt;
       &lt;/div&gt;
       &lt;div class=&quot;kpis&quot; id=&quot;detail-kpis&quot;&gt;&lt;/div&gt;
       &lt;div class=&quot;breadcrumb&quot; id=&quot;breadcrumb&quot;&gt;&lt;/div&gt;
@@ -1166,6 +1169,7 @@ function openPort(port) {
   state = { port, level:&#x27;lvl2&#x27;, lvl2:null, lvl3:null, lvl4:null, rows:model.rows.filter(r =&gt; r.port === port) };
   $(&#x27;home-panel&#x27;).classList.add(&#x27;hidden&#x27;);
   $(&#x27;detail-panel&#x27;).classList.remove(&#x27;hidden&#x27;);
+  $(&#x27;back-home&#x27;).classList.remove(&#x27;hidden&#x27;);
   $(&#x27;people-panel&#x27;).classList.add(&#x27;hidden&#x27;);
   $(&#x27;detail-title&#x27;).textContent = `${port}`;
   $(&#x27;detail-subtitle&#x27;).textContent = &#x27;先看二级部门，再继续展开到三级、四级、岗位和人员&#x27;;
@@ -1289,9 +1293,9 @@ populateFilters();
 renderHome();
 renderChecks();
 root.querySelectorAll(&#x27;.tab&#x27;).forEach(btn =&gt; btn.addEventListener(&#x27;click&#x27;, () =&gt; switchView(btn.dataset.view)));
-[&#x27;port-filter&#x27;,&#x27;position-filter&#x27;,&#x27;status-filter&#x27;].forEach(id =&gt; $(id).addEventListener(&#x27;change&#x27;, () =&gt; { $(&#x27;home-panel&#x27;).classList.remove(&#x27;hidden&#x27;); $(&#x27;detail-panel&#x27;).classList.add(&#x27;hidden&#x27;); renderHome(); }));
-$(&#x27;reset&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; { $(&#x27;port-filter&#x27;).value=&#x27;all&#x27;; $(&#x27;position-filter&#x27;).value=&#x27;all&#x27;; $(&#x27;status-filter&#x27;).value=&#x27;all&#x27;; $(&#x27;home-panel&#x27;).classList.remove(&#x27;hidden&#x27;); $(&#x27;detail-panel&#x27;).classList.add(&#x27;hidden&#x27;); renderHome(); });
-$(&#x27;back-home&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; { $(&#x27;home-panel&#x27;).classList.remove(&#x27;hidden&#x27;); $(&#x27;detail-panel&#x27;).classList.add(&#x27;hidden&#x27;); });
+[&#x27;port-filter&#x27;,&#x27;position-filter&#x27;,&#x27;status-filter&#x27;].forEach(id =&gt; $(id).addEventListener(&#x27;change&#x27;, () =&gt; { $(&#x27;home-panel&#x27;).classList.remove(&#x27;hidden&#x27;); $(&#x27;detail-panel&#x27;).classList.add(&#x27;hidden&#x27;); $(&#x27;up&#x27;).classList.add(&#x27;hidden&#x27;); $(&#x27;back-home&#x27;).classList.add(&#x27;hidden&#x27;); renderHome(); }));
+$(&#x27;reset&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; { $(&#x27;port-filter&#x27;).value=&#x27;all&#x27;; $(&#x27;position-filter&#x27;).value=&#x27;all&#x27;; $(&#x27;status-filter&#x27;).value=&#x27;all&#x27;; $(&#x27;home-panel&#x27;).classList.remove(&#x27;hidden&#x27;); $(&#x27;detail-panel&#x27;).classList.add(&#x27;hidden&#x27;); $(&#x27;up&#x27;).classList.add(&#x27;hidden&#x27;); $(&#x27;back-home&#x27;).classList.add(&#x27;hidden&#x27;); renderHome(); });
+$(&#x27;back-home&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; { $(&#x27;home-panel&#x27;).classList.remove(&#x27;hidden&#x27;); $(&#x27;detail-panel&#x27;).classList.add(&#x27;hidden&#x27;); $(&#x27;up&#x27;).classList.add(&#x27;hidden&#x27;); $(&#x27;back-home&#x27;).classList.add(&#x27;hidden&#x27;); });
 $(&#x27;up&#x27;).addEventListener(&#x27;click&#x27;, goUp);
 })();
 &lt;/script&gt;
